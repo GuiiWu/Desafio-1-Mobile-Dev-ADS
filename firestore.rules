@@ -1,0 +1,44 @@
+// Desafio 1 (passo 1): regras de segurança do Firestore.
+// Copie este conteúdo em: Firebase Console > Firestore Database > Regras > Publicar.
+//
+// O que entendi da regra da apostila:
+//  - "allow read: if true"  -> qualquer pessoa (mesmo sem login) pode LER os reportes,
+//    porque o mapa é público.
+//  - "allow create" só se o usuário estiver logado (request.auth != null) E o campo
+//    idNotificante do documento for o uid dele. Assim ninguém cria reporte "em nome" de outro.
+//  - update e delete não aparecem, então ficam proibidos por padrão.
+//
+// MELHORIA (além do proposto): a função reporteValido() também confere os campos,
+// para o banco recusar dados quebrados mesmo que alguém pule a validação do app:
+//  - só aceita os campos conhecidos (nada de campo extra);
+//  - título com 3 a 80 caracteres, descrição até 500 (mesmos limites do app);
+//  - status SEMPRE "aberto" na criação (o cidadão não pode criar já "resolvido");
+//  - tipo dentro da lista; latitude/longitude números válidos;
+//  - criadoEm precisa ser o horário do servidor (serverTimestamp).
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{banco}/documents {
+    match /ocorrencias/{idOcorrencia} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.idNotificante == request.auth.uid
+        && reporteValido(request.resource.data);
+    }
+
+    function reporteValido(d) {
+      return d.keys().hasOnly(['idNotificante', 'titulo', 'descricao', 'tipo', 'endereco',
+                               'status', 'latitude', 'longitude', 'criadoEm'])
+        && d.keys().hasAll(['idNotificante', 'titulo', 'status', 'latitude', 'longitude', 'criadoEm'])
+        && d.titulo is string && d.titulo.size() >= 3 && d.titulo.size() <= 80
+        && (!('descricao' in d) || d.descricao == null
+            || (d.descricao is string && d.descricao.size() <= 500))
+        && (!('tipo' in d) || d.tipo in ['buraco', 'calcada', 'iluminacao', 'outro'])
+        && (!('endereco' in d) || d.endereco == null
+            || (d.endereco is string && d.endereco.size() <= 200))
+        && d.status == 'aberto'
+        && d.latitude is number && d.latitude >= -90 && d.latitude <= 90
+        && d.longitude is number && d.longitude >= -180 && d.longitude <= 180
+        && d.criadoEm == request.time;
+    }
+  }
+}

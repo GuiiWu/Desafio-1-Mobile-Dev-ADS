@@ -19,7 +19,7 @@ O projeto é desenvolvido com o envolvimento da turma de **Análise e Desenvolvi
 
 - [Expo](https://expo.dev) SDK 57 + [Expo Router](https://docs.expo.dev/router/introduction/) (rotas baseadas em arquivos)
 - React Native + TypeScript
-- [Firebase](https://firebase.google.com/) (Authentication)
+- [Firebase](https://firebase.google.com/) (Authentication + Firestore)
 - `expo-auth-session` para o login com Google
 
 ## Pré-requisitos
@@ -79,7 +79,8 @@ Com o servidor rodando, escaneie o QR Code com o **Expo Go** para abrir no celul
 | --- | --- |
 | `npm start` | Inicia o Expo |
 | `npm run lint` | Roda o ESLint |
-| `npx tsc --noEmit` | Verifica os tipos do TypeScript |
+| `npm run typecheck` | Verifica os tipos do TypeScript |
+| `npm test` | Roda os testes automáticos |
 
 ## Estrutura do projeto
 
@@ -107,5 +108,6 @@ firebase-config.ts   # Inicialização do Firebase
 
 ## Documentação adicional
 
+- [Desafio 1 — Gravar um reporte no Firebase](docs/desafio-1-gravar-reporte.md)
 - [Atualização para o Expo SDK 57](docs/atualizacao-expo-sdk-57.md)
 - [Documentação do Expo](https://docs.expo.dev/)
